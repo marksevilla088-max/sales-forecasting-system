@@ -3,9 +3,9 @@ import pandas as pd
 import plotly.express as px
 
 
-# ===============================
+# ==========================================
 # PAGE CONFIGURATION
-# ===============================
+# ==========================================
 
 st.set_page_config(
     page_title="Sales Forecasting System",
@@ -13,9 +13,9 @@ st.set_page_config(
 )
 
 
-# ===============================
+# ==========================================
 # TITLE
-# ===============================
+# ==========================================
 
 st.title("📈 Sales Forecasting System")
 
@@ -25,9 +25,9 @@ st.write(
 
 
 
-# ===============================
+# ==========================================
 # LOAD DATA
-# ===============================
+# ==========================================
 
 @st.cache_data
 def load_forecast():
@@ -65,16 +65,47 @@ actual_df = load_actual()
 
 
 
-# ===============================
-# SIDEBAR FILTER
-# ===============================
+# ==========================================
+# SIDEBAR
+# ==========================================
 
-st.sidebar.header("Forecast Model Selection")
+st.sidebar.header(
+    "Forecast Model Selection"
+)
 
 
 selected_model = st.sidebar.selectbox(
     "Select Forecast Model",
     df["model_name"].unique()
+)
+
+
+st.sidebar.divider()
+
+
+st.sidebar.subheader(
+    "System Information"
+)
+
+
+st.sidebar.info(
+"""
+Dataset:
+Sta. Cruz Laguna Sales Dataset
+
+Forecast Models:
+• ARIMA
+• SARIMA
+• Prophet
+• Random Forest
+
+Evaluation Metrics:
+• MAE
+• MAPE
+
+Platform:
+Python + Streamlit
+"""
 )
 
 
@@ -85,12 +116,48 @@ model_data = df[
 
 
 
-# ===============================
+# ==========================================
+# DATASET OVERVIEW
+# ==========================================
+
+st.subheader(
+    "📁 Dataset Overview"
+)
+
+
+dataset_col1, dataset_col2, dataset_col3 = st.columns(3)
+
+
+with dataset_col1:
+
+    st.metric(
+        "Historical Sales Records",
+        len(actual_df)
+    )
+
+
+with dataset_col2:
+
+    st.metric(
+        "Forecast Records",
+        len(df)
+    )
+
+
+with dataset_col3:
+
+    st.metric(
+        "Models Evaluated",
+        df["model_name"].nunique()
+    )
+
+
+
+# ==========================================
 # SUMMARY CARDS
-# ===============================
+# ==========================================
 
-
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 
 
@@ -128,11 +195,30 @@ with col3:
 
 
 
-# ===============================
-# MODEL PERFORMANCE
-# ===============================
+with col4:
 
-st.subheader("📊 Model Performance")
+    lowest_mape = (
+        df.groupby("model_name")["mape"]
+        .mean()
+        .min()
+    )
+
+
+    st.metric(
+        "Lowest MAPE",
+        f"{lowest_mape:.2f}%"
+    )
+
+
+
+# ==========================================
+# MODEL PERFORMANCE
+# ==========================================
+
+st.subheader(
+    "📊 Model Performance"
+)
+
 
 
 performance = (
@@ -151,12 +237,15 @@ st.dataframe(
 
 
 
-# ===============================
+# ==========================================
 # MODEL RANKING
-# ===============================
+# ==========================================
 
 
-st.subheader("🏆 Model Ranking")
+st.subheader(
+    "🏆 Model Ranking"
+)
+
 
 
 ranking = performance.sort_values(
@@ -164,10 +253,34 @@ ranking = performance.sort_values(
 ).reset_index(drop=True)
 
 
+
 ranking.insert(
     0,
     "Rank",
     range(1,len(ranking)+1)
+)
+
+
+
+def performance_level(mape):
+
+    if mape < 10:
+        return "Excellent"
+
+    elif mape < 20:
+        return "Good"
+
+    elif mape < 50:
+        return "Acceptable"
+
+    else:
+        return "Poor"
+
+
+
+ranking["Performance"] = (
+    ranking["mape"]
+    .apply(performance_level)
 )
 
 
@@ -179,20 +292,27 @@ st.dataframe(
 
 
 
-# ===============================
+# ==========================================
 # RECOMMENDATION
-# ===============================
+# ==========================================
 
 
-st.subheader("🤖 Forecast Recommendation")
+st.subheader(
+    "🤖 Forecast Recommendation"
+)
+
 
 
 best_row = ranking.iloc[0]
 
 
+
 st.success(
-    f"""
+f"""
 Recommended Model: {best_row['model_name']}
+
+Performance Level:
+{best_row['Performance']}
 
 The model achieved the lowest forecasting error
 with MAPE of {best_row['mape']:.2f}%.
@@ -201,76 +321,121 @@ with MAPE of {best_row['mape']:.2f}%.
 
 
 
-# ===============================
-# ACCURACY COMPARISON
-# ===============================
+# ==========================================
+# END PART 1
+# ==========================================
+
+# ==========================================
+# STATISTICAL VS MACHINE LEARNING COMPARISON
+# ==========================================
 
 
 st.subheader(
-    "Model Accuracy Comparison"
+    "🧠 Forecasting Approach Comparison"
+)
+
+
+def classify_model(model):
+
+    if model in ["ARIMA", "SARIMA"]:
+        return "Statistical Model"
+
+    else:
+        return "Machine Learning Model"
+
+
+
+comparison_type = performance.copy()
+
+
+comparison_type["Approach"] = (
+    comparison_type["model_name"]
+    .apply(classify_model)
 )
 
 
 
-fig_mae = px.bar(
-    performance,
-    x="model_name",
-    y="mae",
-    title="Comparison of MAE"
+approach_summary = (
+    comparison_type
+    .groupby("Approach")
+    [["mae","mape"]]
+    .mean()
+    .reset_index()
 )
-
-
-
-st.plotly_chart(
-    fig_mae,
-    use_container_width=True
-)
-
-
-
-fig_mape = px.bar(
-    performance,
-    x="model_name",
-    y="mape",
-    title="Comparison of MAPE (%)"
-)
-
-
-
-st.plotly_chart(
-    fig_mape,
-    use_container_width=True
-)
-
-
-
-# ===============================
-# SELECTED MODEL PERFORMANCE
-# ===============================
-
-
-st.subheader(
-    f"{selected_model} Performance Summary"
-)
-
-
-
-selected_performance = performance[
-    performance["model_name"] == selected_model
-]
 
 
 
 st.dataframe(
-    selected_performance,
+    approach_summary,
     use_container_width=True
 )
 
 
 
-# ===============================
+# ==========================================
+# ACTUAL SALES SUMMARY
+# ==========================================
+
+
+st.subheader(
+    "📦 Historical Sales Summary"
+)
+
+
+
+sales_col1, sales_col2, sales_col3, sales_col4 = st.columns(4)
+
+
+
+with sales_col1:
+
+    st.metric(
+        "Total Demand",
+        f"{actual_df['daily_demand'].sum():,.0f}"
+    )
+
+
+
+with sales_col2:
+
+    st.metric(
+        "Average Daily Demand",
+        f"{actual_df['daily_demand'].mean():,.2f}"
+    )
+
+
+
+with sales_col3:
+
+    highest_date = (
+        actual_df
+        .loc[
+            actual_df["daily_demand"].idxmax(),
+            "date"
+        ]
+    )
+
+
+    st.metric(
+        "Highest Demand Date",
+        str(highest_date.date())
+    )
+
+
+
+with sales_col4:
+
+    st.metric(
+        "Maximum Demand",
+        f"{actual_df['daily_demand'].max():,.0f}"
+    )
+
+
+
+
+# ==========================================
 # ACTUAL VS FORECAST
-# ===============================
+# ==========================================
 
 
 st.subheader(
@@ -307,9 +472,10 @@ st.plotly_chart(
 
 
 
-# ===============================
-# MONTHLY SALES TREND
-# ===============================
+
+# ==========================================
+# MONTHLY TREND
+# ==========================================
 
 
 st.subheader(
@@ -356,13 +522,14 @@ st.plotly_chart(
 
 
 
-# ===============================
+
+# ==========================================
 # ERROR ANALYSIS
-# ===============================
+# ==========================================
 
 
 st.subheader(
-    "Forecast Error Analysis"
+    "📉 Forecast Error Analysis"
 )
 
 
@@ -392,13 +559,13 @@ st.plotly_chart(
 
 
 
-# ===============================
+# ==========================================
 # FORECAST TREND
-# ===============================
+# ==========================================
 
 
 st.subheader(
-    f"{selected_model} Forecast Trend"
+    f"📈 {selected_model} Forecast Trend"
 )
 
 
@@ -419,18 +586,58 @@ st.plotly_chart(
 
 
 
-# ===============================
-# DOWNLOAD SECTION
-# ===============================
+
+# ==========================================
+# FORECAST SUMMARY
+# ==========================================
 
 
 st.subheader(
-    "Download Forecast Results"
+    "📌 Forecast Summary"
 )
 
 
 
-# Selected model
+summary1, summary2, summary3 = st.columns(3)
+
+
+
+with summary1:
+
+    st.metric(
+        "Average Forecast",
+        f"{model_data['predicted_demand'].mean():,.2f}"
+    )
+
+
+with summary2:
+
+    st.metric(
+        "Highest Forecast",
+        f"{model_data['predicted_demand'].max():,.2f}"
+    )
+
+
+with summary3:
+
+    st.metric(
+        "Lowest Forecast",
+        f"{model_data['predicted_demand'].min():,.2f}"
+    )
+
+
+
+
+# ==========================================
+# DOWNLOAD SECTION
+# ==========================================
+
+
+st.subheader(
+    "⬇️ Download Forecast Results"
+)
+
+
 
 selected_csv = model_data.to_csv(
     index=False
@@ -447,8 +654,6 @@ st.download_button(
 
 
 
-# All models
-
 all_csv = df.to_csv(
     index=False
 ).encode("utf-8")
@@ -464,13 +669,29 @@ st.download_button(
 
 
 
-# ===============================
-# DATA TABLE
-# ===============================
+ranking_csv = ranking.to_csv(
+    index=False
+).encode("utf-8")
+
+
+
+st.download_button(
+    label="Download Model Ranking Report",
+    data=ranking_csv,
+    file_name="model_ranking_report.csv",
+    mime="text/csv"
+)
+
+
+
+
+# ==========================================
+# FINAL DATA TABLE
+# ==========================================
 
 
 st.subheader(
-    "Forecast Data"
+    "📋 Forecast Data"
 )
 
 
