@@ -3,93 +3,108 @@ import pandas as pd
 import plotly.express as px
 
 
-# =====================================================
+# ==========================================
 # PAGE CONFIGURATION
-# =====================================================
+# ==========================================
 
 st.set_page_config(
     page_title="Sales Forecasting System",
-    page_icon="📈",
     layout="wide"
 )
 
 
-# =====================================================
-# CUSTOM CSS - PROFESSIONAL THESIS UI
-# =====================================================
+# ==========================================
+# PROFESSIONAL UI STYLE
+# ==========================================
 
 st.markdown(
-    """
-    <style>
+"""
+<style>
 
-    /* Main title */
-    h1 {
-        font-size: 42px;
-        font-weight: 700;
-    }
+.main {
+    background-color: #0e1117;
+}
 
 
-    /* Section headers */
-    h2 {
-        font-size: 28px;
-        font-weight: 600;
-    }
+h1 {
+    font-size: 42px !important;
+    font-weight: 700;
+}
 
 
-    h3 {
-        font-size: 22px;
-        font-weight: 600;
-    }
+h2 {
+    font-size: 32px !important;
+    font-weight: 650;
+}
 
 
-    /* Metric cards */
-    div[data-testid="metric-container"] {
-
-        background-color: #111827;
-        border: 1px solid #374151;
-        padding: 15px;
-        border-radius: 12px;
-
-    }
+h3 {
+    font-size: 26px !important;
+}
 
 
-    /* Dataframe */
-    .stDataFrame {
-
-        border-radius: 10px;
-
-    }
+[data-testid="stMetricValue"] {
+    font-size: 32px;
+    font-weight: 700;
+}
 
 
-    /* Sidebar */
-
-    section[data-testid="stSidebar"] {
-
-        background-color:#0f172a;
-
-    }
+[data-testid="stMetricLabel"] {
+    font-size: 15px;
+}
 
 
-    /* Buttons */
+div[data-testid="stMetric"] {
 
-    .stDownloadButton button {
+    background-color: #151a24;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #30363d;
 
-        border-radius:8px;
-        font-weight:600;
-
-    }
+}
 
 
-    </style>
-    """,
-    unsafe_allow_html=True
+
+.stDataFrame {
+
+    border-radius: 10px;
+
+}
+
+
+
+section[data-testid="stSidebar"] {
+
+    background-color: #111827;
+
+}
+
+
+section[data-testid="stSidebar"] h2 {
+
+    color: white;
+
+}
+
+
+.stAlert {
+
+    border-radius: 12px;
+
+}
+
+
+</style>
+""",
+unsafe_allow_html=True
 )
 
 
 
-# =====================================================
+# ==========================================
 # TITLE
-# =====================================================
+# ==========================================
+
 
 st.title(
     "Sales Forecasting System"
@@ -101,13 +116,14 @@ st.write(
 )
 
 
+
 st.divider()
 
 
 
-# =====================================================
+# ==========================================
 # LOAD DATA
-# =====================================================
+# ==========================================
 
 
 @st.cache_data
@@ -117,11 +133,9 @@ def load_forecast():
         "final_forecast_results.csv"
     )
 
-
     df["forecast_date"] = pd.to_datetime(
         df["forecast_date"]
     )
-
 
     return df
 
@@ -134,11 +148,9 @@ def load_actual():
         "daily_sales_clean.csv"
     )
 
-
     actual["date"] = pd.to_datetime(
         actual["date"]
     )
-
 
     return actual
 
@@ -150,12 +162,12 @@ actual_df = load_actual()
 
 
 
-# =====================================================
+# ==========================================
 # SIDEBAR
-# =====================================================
+# ==========================================
 
 
-st.sidebar.title(
+st.sidebar.header(
     "Forecast Model Selection"
 )
 
@@ -177,25 +189,30 @@ st.sidebar.subheader(
 )
 
 
+
 st.sidebar.info(
-    """
-Dataset:
+"""
+Dataset
+
 Sta. Cruz Laguna Sales Dataset
 
 
-Forecast Models:
+Forecasting Models
+
 ARIMA
 SARIMA
 Prophet
 Random Forest
 
 
-Evaluation Metrics:
+Evaluation Metrics
+
 MAE
 MAPE
 
 
-Platform:
+Development Platform
+
 Python + Streamlit
 """
 )
@@ -208,50 +225,113 @@ model_data = df[
 
 
 
-# =====================================================
+# ==========================================
 # DATASET OVERVIEW
-# =====================================================
+# ==========================================
 
 
-st.header(
+st.subheader(
     "Dataset Overview"
 )
 
 
 
-historical_records = len(actual_df)
-
-forecast_records = len(df)
-
-number_models = df["model_name"].nunique()
+dataset_col1, dataset_col2, dataset_col3 = st.columns(3)
 
 
 
-col1,col2,col3 = st.columns(3)
+with dataset_col1:
+
+    st.metric(
+        "Historical Sales Records",
+        len(actual_df)
+    )
+
+
+
+with dataset_col2:
+
+    st.metric(
+        "Forecast Records",
+        len(df)
+    )
+
+
+
+with dataset_col3:
+
+    st.metric(
+        "Models Evaluated",
+        df["model_name"].nunique()
+    )
+
+
+
+st.divider()
+
+
+
+# ==========================================
+# SUMMARY CARDS
+# ==========================================
+
+
+st.subheader(
+    "Forecast Summary"
+)
+
+
+
+col1, col2, col3, col4 = st.columns(4)
 
 
 
 with col1:
 
     st.metric(
-        "Historical Sales Records",
-        historical_records
+        "Forecast Records",
+        len(df)
     )
+
 
 
 with col2:
 
     st.metric(
-        "Forecast Records",
-        forecast_records
+        "Models Tested",
+        df["model_name"].nunique()
     )
+
 
 
 with col3:
 
+    best_model = (
+        df.groupby("model_name")["mape"]
+        .mean()
+        .idxmin()
+    )
+
+
     st.metric(
-        "Models Evaluated",
-        number_models
+        "Recommended Model",
+        best_model
+    )
+
+
+
+with col4:
+
+    lowest_mape = (
+        df.groupby("model_name")["mape"]
+        .mean()
+        .min()
+    )
+
+
+    st.metric(
+        "Lowest MAPE",
+        f"{lowest_mape:.2f}%"
     )
 
 
@@ -260,217 +340,203 @@ st.divider()
 
 
 
-# =====================================================
+# ==========================================
 # MODEL PERFORMANCE
-# =====================================================
+# ==========================================
 
 
-st.header(
-    "Model Performance Evaluation"
+st.subheader(
+    "Forecast Model Evaluation"
 )
 
 
 
 performance = (
-
     df.groupby("model_name")
     [["mae","mape"]]
     .mean()
     .reset_index()
-
 )
-
-
-
-performance["mape"] = performance["mape"].round(4)
-
-performance["mae"] = performance["mae"].round(4)
 
 
 
 st.dataframe(
     performance,
-    use_container_width=True,
-    hide_index=True
+    use_container_width=True
 )
 
 
-# =====================================================
+
+# ==========================================
 # MODEL RANKING
-# =====================================================
+# ==========================================
 
 
-st.header(
-    "Model Ranking"
+st.subheader(
+    "Model Performance Ranking"
 )
 
 
-ranking = (
 
-    performance
-    .sort_values(
-        by="mape"
-    )
-    .reset_index(drop=True)
-
-)
+ranking = performance.sort_values(
+    by="mape"
+).reset_index(drop=True)
 
 
 
 ranking.insert(
     0,
     "Rank",
-    range(1, len(ranking)+1)
+    range(1,len(ranking)+1)
 )
 
 
 
-def classify_performance(mape):
+def performance_level(mape):
 
     if mape < 10:
+
         return "Excellent"
 
     elif mape < 20:
+
         return "Good"
 
     elif mape < 50:
+
         return "Acceptable"
 
     else:
+
         return "Poor"
 
 
 
 ranking["Performance Level"] = (
     ranking["mape"]
-    .apply(classify_performance)
+    .apply(performance_level)
 )
 
 
 
 st.dataframe(
     ranking,
-    use_container_width=True,
-    hide_index=True
+    use_container_width=True
 )
 
+# ==========================================
+# FORECAST RECOMMENDATION
+# ==========================================
 
 
 st.divider()
 
 
-
-# =====================================================
-# RECOMMENDED MODEL
-# =====================================================
-
-
-st.header(
+st.subheader(
     "Forecast Recommendation"
 )
 
 
 
-best_model_row = ranking.iloc[0]
+best_row = ranking.iloc[0]
 
 
 
-recommendation_col1, recommendation_col2 = st.columns(2)
+rec_col1, rec_col2 = st.columns(2)
 
 
 
-with recommendation_col1:
-
+with rec_col1:
 
     st.metric(
         "Recommended Forecast Model",
-        best_model_row["model_name"]
+        best_row["model_name"]
     )
 
 
-with recommendation_col2:
 
+with rec_col2:
 
     st.metric(
         "Lowest MAPE",
-        f"{best_model_row['mape']:.2f}%"
+        f"{best_row['mape']:.2f}%"
     )
 
 
 
 st.success(
-
 f"""
-The recommended forecasting model is **{best_model_row['model_name']}**.
+The recommended forecasting model is {best_row['model_name']}.
 
 It achieved the lowest forecasting error among the evaluated models,
-with a Mean Absolute Percentage Error (MAPE) of
-**{best_model_row['mape']:.2f}%**.
+with a Mean Absolute Percentage Error (MAPE) of {best_row['mape']:.2f}%.
 """
-
 )
 
 
 
-st.divider()
-
-
-
-# =====================================================
+# ==========================================
 # FORECASTING APPROACH COMPARISON
-# =====================================================
+# ==========================================
 
 
-st.header(
+st.subheader(
     "Forecasting Approach Comparison"
 )
 
 
 
-approach_df = performance.copy()
+approach_df = pd.DataFrame({
 
+    "Approach":[
+        "Machine Learning Model",
+        "Statistical Model"
+    ],
 
+    "mae":[
 
-approach_df["approach"] = approach_df[
-    "model_name"
-].apply(
+        df[
+            df["model_name"]=="Random Forest"
+        ]["mae"].mean(),
 
-lambda x:
+        df[
+            df["model_name"].isin(
+                ["ARIMA","SARIMA"]
+            )
+        ]["mae"].mean()
 
-"Machine Learning Model"
-if x == "Random Forest"
+    ],
 
-else "Statistical Model"
+    "mape":[
 
-)
+        df[
+            df["model_name"]=="Random Forest"
+        ]["mape"].mean(),
 
+        df[
+            df["model_name"].isin(
+                ["ARIMA","SARIMA"]
+            )
+        ]["mape"].mean()
 
+    ]
 
-approach_comparison = (
-
-approach_df
-.groupby("approach")
-[["mae","mape"]]
-.mean()
-.reset_index()
-
-)
+})
 
 
 
 st.dataframe(
-    approach_comparison,
-    use_container_width=True,
-    hide_index=True
+    approach_df,
+    use_container_width=True
 )
 
 
 
 fig_approach = px.bar(
 
-    approach_comparison,
+    approach_df,
 
-    x="approach",
+    x="Approach",
 
     y="mape",
 
@@ -490,9 +556,9 @@ st.plotly_chart(
 
 fig_approach_mae = px.bar(
 
-    approach_comparison,
+    approach_df,
 
-    x="approach",
+    x="Approach",
 
     y="mae",
 
@@ -510,109 +576,76 @@ st.plotly_chart(
 
 
 
+# ==========================================
+# HISTORICAL SALES SUMMARY
+# ==========================================
+
+
 st.divider()
 
 
-
-# =====================================================
-# HISTORICAL SALES SUMMARY
-# =====================================================
-
-
-st.header(
+st.subheader(
     "Historical Sales Summary"
 )
 
 
 
-total_sales = (
-
-actual_df["daily_demand"]
-.sum()
-
-)
+hist_col1, hist_col2, hist_col3, hist_col4 = st.columns(4)
 
 
 
-average_daily = (
-
-actual_df["daily_demand"]
-.mean()
-
-)
-
-
-
-max_sales = (
-
-actual_df["daily_demand"]
-.max()
-
-)
-
-
-
-highest_date = (
-
-actual_df.loc[
-    actual_df["daily_demand"].idxmax(),
-    "date"
-]
-
-)
-
-
-
-summary1, summary2, summary3, summary4 = st.columns(4)
-
-
-
-with summary1:
+with hist_col1:
 
     st.metric(
         "Total Demand",
-        f"{total_sales:,.0f}"
+        f"{actual_df['daily_demand'].sum():,.0f}"
     )
 
 
 
-with summary2:
+with hist_col2:
 
     st.metric(
         "Average Daily Demand",
-        f"{average_daily:,.2f}"
+        f"{actual_df['daily_demand'].mean():,.2f}"
     )
 
 
 
-with summary3:
+with hist_col3:
 
     st.metric(
         "Highest Demand",
-        f"{max_sales:,.0f}"
+        f"{actual_df['daily_demand'].max():,.0f}"
     )
 
 
 
-with summary4:
+with hist_col4:
+
+    highest_date = actual_df.loc[
+        actual_df["daily_demand"].idxmax()
+    ]["date"]
+
 
     st.metric(
         "Highest Demand Date",
-        highest_date.strftime("%Y-%m-%d")
+        str(highest_date.date())
     )
 
+
+
+
+
+# ==========================================
+# ACTUAL VS FORECAST
+# ==========================================
 
 
 st.divider()
 
 
-
-# =====================================================
-# ACTUAL VS FORECAST
-# =====================================================
-
-
-st.header(
+st.subheader(
     f"{selected_model}: Actual vs Forecast"
 )
 
@@ -639,11 +672,8 @@ fig_compare = px.line(
     x="forecast_date",
 
     y=[
-
         "daily_demand",
-
         "predicted_demand"
-
     ],
 
     title="Actual Demand Compared with Forecasted Demand"
@@ -661,3 +691,310 @@ st.plotly_chart(
 )
 
 
+
+
+# ==========================================
+# MONTHLY SALES TREND
+# ==========================================
+
+
+st.subheader(
+    "Monthly Historical Sales Trend"
+)
+
+
+
+monthly_sales = actual_df.copy()
+
+
+
+monthly_sales["month"] = (
+
+    monthly_sales["date"]
+
+    .dt.to_period("M")
+
+    .astype(str)
+
+)
+
+
+
+monthly_sales = (
+
+    monthly_sales
+
+    .groupby("month")
+
+    ["daily_demand"]
+
+    .sum()
+
+    .reset_index()
+
+)
+
+
+
+fig_month = px.line(
+
+    monthly_sales,
+
+    x="month",
+
+    y="daily_demand",
+
+    title="Monthly Sales Demand"
+
+)
+
+
+
+st.plotly_chart(
+
+    fig_month,
+
+    use_container_width=True
+
+)
+
+
+
+
+# ==========================================
+# ERROR ANALYSIS
+# ==========================================
+
+
+st.subheader(
+    "Forecast Error Analysis"
+)
+
+
+
+comparison["error"] = (
+
+    comparison["daily_demand"]
+
+    -
+
+    comparison["predicted_demand"]
+
+)
+
+
+
+fig_error = px.line(
+
+    comparison,
+
+    x="forecast_date",
+
+    y="error",
+
+    title="Forecast Error"
+
+)
+
+
+
+st.plotly_chart(
+
+    fig_error,
+
+    use_container_width=True
+
+)
+
+
+
+
+# ==========================================
+# FORECAST TREND
+# ==========================================
+
+
+st.subheader(
+
+    f"{selected_model} Forecast Trend"
+
+)
+
+
+
+fig_forecast = px.line(
+
+    model_data,
+
+    x="forecast_date",
+
+    y="predicted_demand",
+
+    title=f"{selected_model} Predicted Demand"
+
+)
+
+
+
+st.plotly_chart(
+
+    fig_forecast,
+
+    use_container_width=True
+
+)
+
+
+
+
+
+# ==========================================
+# FORECAST SUMMARY
+# ==========================================
+
+
+st.subheader(
+    "Forecast Summary"
+)
+
+
+
+sum1,sum2,sum3 = st.columns(3)
+
+
+
+with sum1:
+
+    st.metric(
+
+        "Average Forecast",
+
+        f"{model_data['predicted_demand'].mean():,.2f}"
+
+    )
+
+
+with sum2:
+
+    st.metric(
+
+        "Highest Forecast",
+
+        f"{model_data['predicted_demand'].max():,.2f}"
+
+    )
+
+
+with sum3:
+
+    st.metric(
+
+        "Lowest Forecast",
+
+        f"{model_data['predicted_demand'].min():,.2f}"
+
+    )
+
+
+
+
+# ==========================================
+# DOWNLOAD SECTION
+# ==========================================
+
+
+st.divider()
+
+
+st.subheader(
+    "Download Forecast Results"
+)
+
+
+
+selected_csv = model_data.to_csv(
+
+    index=False
+
+).encode("utf-8")
+
+
+
+st.download_button(
+
+    "Download Selected Forecast CSV",
+
+    selected_csv,
+
+    file_name=f"{selected_model}_forecast.csv",
+
+    mime="text/csv"
+
+)
+
+
+
+
+all_csv = df.to_csv(
+
+    index=False
+
+).encode("utf-8")
+
+
+
+st.download_button(
+
+    "Download All Forecast Results",
+
+    all_csv,
+
+    file_name="all_forecast_results.csv",
+
+    mime="text/csv"
+
+)
+
+
+
+
+ranking_csv = ranking.to_csv(
+
+    index=False
+
+).encode("utf-8")
+
+
+
+st.download_button(
+
+    "Download Model Ranking Report",
+
+    ranking_csv,
+
+    file_name="model_ranking_report.csv",
+
+    mime="text/csv"
+
+)
+
+
+
+# ==========================================
+# FINAL DATA TABLE
+# ==========================================
+
+
+st.subheader(
+    "Forecast Data"
+)
+
+
+
+st.dataframe(
+
+    model_data,
+
+    use_container_width=True
+
+)
