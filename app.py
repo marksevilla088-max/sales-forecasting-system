@@ -84,7 +84,32 @@ st.dataframe(
     performance,
     use_container_width=True
 )
+st.subheader("Model Accuracy Comparison")
 
+fig_mae = px.bar(
+    performance,
+    x="model_name",
+    y="mae",
+    title="Comparison of MAE"
+)
+
+st.plotly_chart(
+    fig_mae,
+    use_container_width=True
+)
+
+
+fig_mape = px.bar(
+    performance,
+    x="model_name",
+    y="mape",
+    title="Comparison of MAPE (%)"
+)
+
+st.plotly_chart(
+    fig_mape,
+    use_container_width=True
+)
 
 # Forecast Graph
 st.subheader(
