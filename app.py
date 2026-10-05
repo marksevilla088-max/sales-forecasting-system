@@ -3,12 +3,19 @@ import pandas as pd
 import plotly.express as px
 
 
+# ===============================
+# PAGE CONFIGURATION
+# ===============================
 
 st.set_page_config(
     page_title="Sales Forecasting System",
     layout="wide"
 )
 
+
+# ===============================
+# TITLE
+# ===============================
 
 st.title("📈 Sales Forecasting System")
 
@@ -18,6 +25,9 @@ st.write(
 
 
 
+# ===============================
+# LOAD DATA
+# ===============================
 
 @st.cache_data
 def load_forecast():
@@ -55,8 +65,11 @@ actual_df = load_actual()
 
 
 
+# ===============================
+# SIDEBAR FILTER
+# ===============================
 
-st.sidebar.header("Filter")
+st.sidebar.header("Forecast Model Selection")
 
 
 selected_model = st.sidebar.selectbox(
@@ -72,10 +85,13 @@ model_data = df[
 
 
 
+# ===============================
+# SUMMARY CARDS
+# ===============================
 
 
+col1, col2, col3 = st.columns(3)
 
-col1, col2, col3, col4 = st.columns(4)
 
 
 with col1:
@@ -86,12 +102,14 @@ with col1:
     )
 
 
+
 with col2:
 
     st.metric(
         "Models Tested",
         df["model_name"].nunique()
     )
+
 
 
 with col3:
@@ -104,28 +122,15 @@ with col3:
 
 
     st.metric(
-        "Best Model",
+        "Recommended Model",
         best_model
     )
 
 
-with col4:
 
-    avg_mape = (
-        df.groupby("model_name")["mape"]
-        .mean()
-        .min()
-    )
-
-
-    st.metric(
-        "Lowest MAPE",
-        f"{avg_mape:.2f}%"
-    )
-
-
-
-
+# ===============================
+# MODEL PERFORMANCE
+# ===============================
 
 st.subheader("📊 Model Performance")
 
@@ -138,6 +143,7 @@ performance = (
 )
 
 
+
 st.dataframe(
     performance,
     use_container_width=True
@@ -145,10 +151,65 @@ st.dataframe(
 
 
 
+# ===============================
+# MODEL RANKING
+# ===============================
+
+
+st.subheader("🏆 Model Ranking")
+
+
+ranking = performance.sort_values(
+    by="mape"
+).reset_index(drop=True)
+
+
+ranking.insert(
+    0,
+    "Rank",
+    range(1,len(ranking)+1)
+)
+
+
+
+st.dataframe(
+    ranking,
+    use_container_width=True
+)
+
+
+
+# ===============================
+# RECOMMENDATION
+# ===============================
+
+
+st.subheader("🤖 Forecast Recommendation")
+
+
+best_row = ranking.iloc[0]
+
+
+st.success(
+    f"""
+Recommended Model: {best_row['model_name']}
+
+The model achieved the lowest forecasting error
+with MAPE of {best_row['mape']:.2f}%.
+"""
+)
+
+
+
+# ===============================
+# ACCURACY COMPARISON
+# ===============================
+
 
 st.subheader(
     "Model Accuracy Comparison"
 )
+
 
 
 fig_mae = px.bar(
@@ -157,6 +218,7 @@ fig_mae = px.bar(
     y="mae",
     title="Comparison of MAE"
 )
+
 
 
 st.plotly_chart(
@@ -174,6 +236,7 @@ fig_mape = px.bar(
 )
 
 
+
 st.plotly_chart(
     fig_mape,
     use_container_width=True
@@ -181,12 +244,39 @@ st.plotly_chart(
 
 
 
+# ===============================
+# SELECTED MODEL PERFORMANCE
+# ===============================
 
+
+st.subheader(
+    f"{selected_model} Performance Summary"
+)
+
+
+
+selected_performance = performance[
+    performance["model_name"] == selected_model
+]
+
+
+
+st.dataframe(
+    selected_performance,
+    use_container_width=True
+)
+
+
+
+# ===============================
+# ACTUAL VS FORECAST
+# ===============================
 
 
 st.subheader(
     f"{selected_model}: Actual vs Forecast"
 )
+
 
 
 comparison = model_data.merge(
@@ -209,6 +299,7 @@ fig_compare = px.line(
 )
 
 
+
 st.plotly_chart(
     fig_compare,
     use_container_width=True
@@ -216,8 +307,58 @@ st.plotly_chart(
 
 
 
+# ===============================
+# MONTHLY SALES TREND
+# ===============================
 
 
+st.subheader(
+    "📅 Monthly Actual Sales Trend"
+)
+
+
+
+monthly_sales = actual_df.copy()
+
+
+
+monthly_sales["month"] = (
+    monthly_sales["date"]
+    .dt.to_period("M")
+    .astype(str)
+)
+
+
+
+monthly_sales = (
+    monthly_sales
+    .groupby("month")
+    ["daily_demand"]
+    .sum()
+    .reset_index()
+)
+
+
+
+fig_month = px.line(
+    monthly_sales,
+    x="month",
+    y="daily_demand",
+    title="Monthly Sales Demand"
+)
+
+
+
+st.plotly_chart(
+    fig_month,
+    use_container_width=True
+)
+
+
+
+# ===============================
+# ERROR ANALYSIS
+# ===============================
 
 
 st.subheader(
@@ -225,11 +366,13 @@ st.subheader(
 )
 
 
+
 comparison["error"] = (
     comparison["daily_demand"]
     -
     comparison["predicted_demand"]
 )
+
 
 
 fig_error = px.line(
@@ -240,6 +383,7 @@ fig_error = px.line(
 )
 
 
+
 st.plotly_chart(
     fig_error,
     use_container_width=True
@@ -248,12 +392,15 @@ st.plotly_chart(
 
 
 
-
+# ===============================
+# FORECAST TREND
+# ===============================
 
 
 st.subheader(
     f"{selected_model} Forecast Trend"
 )
+
 
 
 fig_forecast = px.line(
@@ -264,6 +411,7 @@ fig_forecast = px.line(
 )
 
 
+
 st.plotly_chart(
     fig_forecast,
     use_container_width=True
@@ -271,35 +419,60 @@ st.plotly_chart(
 
 
 
-
+# ===============================
+# DOWNLOAD SECTION
+# ===============================
 
 
 st.subheader(
-    "Download Forecast Result"
+    "Download Forecast Results"
 )
 
 
-csv = model_data.to_csv(
+
+# Selected model
+
+selected_csv = model_data.to_csv(
     index=False
 ).encode("utf-8")
 
 
+
 st.download_button(
     label="Download Selected Forecast CSV",
-    data=csv,
+    data=selected_csv,
     file_name=f"{selected_model}_forecast.csv",
     mime="text/csv"
 )
 
 
 
+# All models
+
+all_csv = df.to_csv(
+    index=False
+).encode("utf-8")
 
 
+
+st.download_button(
+    label="Download All Forecast Results",
+    data=all_csv,
+    file_name="all_forecast_results.csv",
+    mime="text/csv"
+)
+
+
+
+# ===============================
+# DATA TABLE
+# ===============================
 
 
 st.subheader(
     "Forecast Data"
 )
+
 
 
 st.dataframe(
