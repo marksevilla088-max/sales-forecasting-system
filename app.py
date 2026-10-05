@@ -469,7 +469,83 @@ st.plotly_chart(
     fig_compare,
     use_container_width=True
 )
+# ==========================================
+# STATISTICAL VS MACHINE LEARNING COMPARISON
+# ==========================================
 
+st.subheader(
+    "🧠 Statistical vs Machine Learning Comparison"
+)
+
+
+def classify_model(model):
+
+    if model in ["ARIMA", "SARIMA"]:
+        return "Statistical Model"
+
+    else:
+        return "Machine Learning Model"
+
+
+
+approach_data = performance.copy()
+
+
+approach_data["Approach"] = (
+    approach_data["model_name"]
+    .apply(classify_model)
+)
+
+
+
+approach_summary = (
+    approach_data
+    .groupby("Approach")
+    [["mae", "mape"]]
+    .mean()
+    .reset_index()
+)
+
+
+
+st.dataframe(
+    approach_summary,
+    use_container_width=True
+)
+
+
+
+# MAPE comparison chart
+
+fig_approach = px.bar(
+    approach_summary,
+    x="Approach",
+    y="mape",
+    title="Average MAPE Comparison by Forecasting Approach"
+)
+
+
+st.plotly_chart(
+    fig_approach,
+    use_container_width=True
+)
+
+
+
+# MAE comparison chart
+
+fig_approach_mae = px.bar(
+    approach_summary,
+    x="Approach",
+    y="mae",
+    title="Average MAE Comparison by Forecasting Approach"
+)
+
+
+st.plotly_chart(
+    fig_approach_mae,
+    use_container_width=True
+)
 
 
 
