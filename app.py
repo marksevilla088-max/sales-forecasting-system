@@ -362,69 +362,125 @@ with dataset_col3:
 # SUMMARY CARDS
 # ==========================================
 
-
-st.subheader(
-    "Forecast Summary"
+st.markdown(
+"""
+<h2 style="
+margin-top:35px;
+margin-bottom:20px;
+">
+Forecast Summary
+</h2>
+""",
+unsafe_allow_html=True
 )
-
 
 
 col1, col2, col3, col4 = st.columns(4)
 
 
 
+def summary_card(title, value, description, highlight=False):
+
+    border = "#38bdf8" if highlight else "#30363d"
+
+    st.markdown(
+    f"""
+    <div style="
+    background:#151a24;
+    padding:22px;
+    border-radius:15px;
+    border:1px solid {border};
+    height:140px;
+    ">
+
+    <p style="
+    color:#94a3b8;
+    font-size:14px;
+    margin-bottom:8px;
+    ">
+    {title}
+    </p>
+
+
+    <h2 style="
+    color:white;
+    margin:0;
+    ">
+    {value}
+    </h2>
+
+
+    <p style="
+    color:#64748b;
+    font-size:13px;
+    margin-top:10px;
+    ">
+    {description}
+    </p>
+
+
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
+
+
+best_model = (
+    df.groupby("model_name")["mape"]
+    .mean()
+    .idxmin()
+)
+
+
+
+lowest_mape = (
+    df.groupby("model_name")["mape"]
+    .mean()
+    .min()
+)
+
+
+
 with col1:
 
-    st.metric(
+    summary_card(
         "Forecast Records",
-        len(df)
+        f"{len(df):,}",
+        "Generated prediction data"
     )
 
 
 
 with col2:
 
-    st.metric(
+    summary_card(
         "Models Tested",
-        df["model_name"].nunique()
+        df["model_name"].nunique(),
+        "Forecasting models evaluated"
     )
 
 
 
 with col3:
 
-    best_model = (
-        df.groupby("model_name")["mape"]
-        .mean()
-        .idxmin()
-    )
-
-
-    st.metric(
+    summary_card(
         "Recommended Model",
-        best_model
+        best_model,
+        "Best performing forecasting model",
+        True
     )
 
 
 
 with col4:
 
-    lowest_mape = (
-        df.groupby("model_name")["mape"]
-        .mean()
-        .min()
-    )
-
-
-    st.metric(
+    summary_card(
         "Lowest MAPE",
-        f"{lowest_mape:.2f}%"
+        f"{lowest_mape:.2f}%",
+        "Lowest forecasting error achieved",
+        True
     )
-
-
-
-st.divider()
-
 
 
 # ==========================================
