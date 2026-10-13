@@ -384,44 +384,48 @@ def summary_card(title, value, description, highlight=False):
     border = "#38bdf8" if highlight else "#30363d"
 
     st.markdown(
-        f"""
-        <div style="
-        background-color:#151a24;
-        padding:20px;
-        border-radius:15px;
-        border:1px solid {border};
-        height:150px;
-        ">
+    f"""
+    <div style="
+    background-color:#151a24;
+    padding:18px;
+    border-radius:15px;
+    border:1px solid {border};
+    height:120px;
+    overflow:hidden;
+    ">
 
-        <p style="
-        color:#94a3b8;
-        font-size:14px;
-        margin:0;
-        ">
-        {title}
-        </p>
+    <div style="
+    color:#94a3b8;
+    font-size:13px;
+    margin-bottom:8px;
+    ">
+    {title}
+    </div>
 
-        <h2 style="
-        color:white;
-        font-size:28px;
-        margin:15px 0;
-        line-height:1.1;
-        ">
-        {value}
-        </h2>
 
-        <p style="
-        color:#64748b;
-        font-size:12px;
-        margin:0;
-        ">
-        {description}
-        </p>
+    <div style="
+    color:white;
+    font-size:30px;
+    font-weight:700;
+    line-height:1.1;
+    ">
+    {value}
+    </div>
 
-        </div>
-        """,
-        unsafe_allow_html=True
-    ) 
+
+    <div style="
+    color:#64748b;
+    font-size:11px;
+    margin-top:8px;
+    ">
+    {description}
+    </div>
+
+
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
 
 
 
