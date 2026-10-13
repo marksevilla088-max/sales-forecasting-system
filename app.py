@@ -405,7 +405,7 @@ def summary_card(title, value, description, highlight=False):
 
     <div style="
     color:white;
-    font-size:30px;
+    font-size:26px;
     font-weight:700;
     line-height:1.1;
     ">
