@@ -113,16 +113,17 @@ unsafe_allow_html=True
 st.markdown(
 """
 <div style="
-background: linear-gradient(135deg, #151a24, #1f2937);
-padding:45px 40px;
+width:92%;
+margin:20px auto 30px auto;
+background:linear-gradient(135deg, #151a24, #1f2937);
+padding:32px 38px;
 border-radius:18px;
 border:1px solid #30363d;
 box-shadow:0px 8px 25px rgba(0,0,0,0.35);
-margin-bottom:35px;
 ">
 
 <h1 style="
-font-size:48px;
+font-size:46px;
 font-weight:800;
 margin:0;
 color:white;
@@ -133,10 +134,11 @@ Sales Forecasting System
 
 
 <p style="
-font-size:19px;
-margin-top:15px;
+font-size:18px;
+margin-top:12px;
 color:#cbd5e1;
-line-height:1.6;
+line-height:1.5;
+max-width:850px;
 ">
 A comparative forecasting system using ARIMA, SARIMA, Prophet,
 and Random Forest models for accurate sales demand prediction.
@@ -144,7 +146,7 @@ and Random Forest models for accurate sales demand prediction.
 
 
 <div style="
-margin-top:25px;
+margin-top:20px;
 height:3px;
 width:120px;
 background:#38bdf8;
@@ -160,7 +162,6 @@ unsafe_allow_html=True
 
 
 st.divider()
-
 
 # ==========================================
 # LOAD DATA
