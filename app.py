@@ -384,82 +384,44 @@ def summary_card(title, value, description, highlight=False):
     border = "#38bdf8" if highlight else "#30363d"
 
     st.markdown(
-    f"""
-    <div style="
-    background:#151a24;
-    padding:20px;
-    border-radius:15px;
-    border:1px solid {border};
-    height:155px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    ">
+        f"""
+        <div style="
+        background-color:#151a24;
+        padding:20px;
+        border-radius:15px;
+        border:1px solid {border};
+        height:150px;
+        ">
 
-    <p style="
-    color:#94a3b8;
-    font-size:14px;
-    margin:0;
-    ">
-    {title}
-    </p>
+        <p style="
+        color:#94a3b8;
+        font-size:14px;
+        margin:0;
+        ">
+        {title}
+        </p>
 
+        <h2 style="
+        color:white;
+        font-size:28px;
+        margin:15px 0;
+        line-height:1.1;
+        ">
+        {value}
+        </h2>
 
-    <h2 style="
-    color:white;
-    font-size:28px;
-    margin:5px 0;
-    line-height:1.1;
-    word-wrap:break-word;
-    ">
-    {value}
-    </h2>
+        <p style="
+        color:#64748b;
+        font-size:12px;
+        margin:0;
+        ">
+        {description}
+        </p>
 
-
-    <p style="
-    color:#64748b;
-    font-size:12px;
-    margin:0;
-    ">
-    {description}
-    </p>
-
-
-    </div>
-    """,
-    unsafe_allow_html=True
-    )
-
-    <p style="
-    color:#94a3b8;
-    font-size:14px;
-    margin-bottom:8px;
-    ">
-    {title}
-    </p>
-
-
-    <h2 style="
-    color:white;
-    margin:0;
-    ">
-    {value}
-    </h2>
-
-
-    <p style="
-    color:#64748b;
-    font-size:13px;
-    margin-top:10px;
-    ">
-    {description}
-    </p>
-
-
-    </div>
-    """,
-    unsafe_allow_html=True
-    )
+        </div>
+        """,
+        unsafe_allow_html=True
+    ) )
 
 
 
