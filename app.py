@@ -271,46 +271,91 @@ model_data = df[
 # DATASET OVERVIEW
 # ==========================================
 
-
-st.subheader(
-    "Dataset Overview"
+st.markdown(
+"""
+<h2 style="
+margin-top:20px;
+margin-bottom:20px;
+">
+Dataset Overview
+</h2>
+""",
+unsafe_allow_html=True
 )
-
 
 
 dataset_col1, dataset_col2, dataset_col3 = st.columns(3)
 
 
+def dashboard_card(title, value, description):
+
+    st.markdown(
+    f"""
+    <div style="
+    background:#151a24;
+    padding:22px;
+    border-radius:15px;
+    border:1px solid #30363d;
+    height:130px;
+    ">
+
+    <p style="
+    color:#94a3b8;
+    font-size:15px;
+    margin-bottom:8px;
+    ">
+    {title}
+    </p>
+
+    <h2 style="
+    color:white;
+    margin:0;
+    ">
+    {value}
+    </h2>
+
+    <p style="
+    color:#64748b;
+    font-size:13px;
+    margin-top:8px;
+    ">
+    {description}
+    </p>
+
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
+
 
 with dataset_col1:
 
-    st.metric(
+    dashboard_card(
         "Historical Sales Records",
-        len(actual_df)
+        f"{len(actual_df):,}",
+        "Available sales transaction records"
     )
 
 
 
 with dataset_col2:
 
-    st.metric(
+    dashboard_card(
         "Forecast Records",
-        len(df)
+        f"{len(df):,}",
+        "Generated prediction records"
     )
 
 
 
 with dataset_col3:
 
-    st.metric(
+    dashboard_card(
         "Models Evaluated",
-        df["model_name"].nunique()
+        df["model_name"].nunique(),
+        "Forecasting algorithms tested"
     )
-
-
-
-st.divider()
-
 
 
 # ==========================================
