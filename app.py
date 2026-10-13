@@ -106,19 +106,60 @@ unsafe_allow_html=True
 # ==========================================
 
 
-st.title(
-    "Sales Forecasting System"
+# ==========================================
+# PROFESSIONAL HEADER
+# ==========================================
+
+st.markdown(
+"""
+<div style="
+background: linear-gradient(135deg, #151a24, #1f2937);
+padding:45px 40px;
+border-radius:18px;
+border:1px solid #30363d;
+box-shadow:0px 8px 25px rgba(0,0,0,0.35);
+margin-bottom:35px;
+">
+
+<h1 style="
+font-size:48px;
+font-weight:800;
+margin:0;
+color:white;
+letter-spacing:0.5px;
+">
+Sales Forecasting System
+</h1>
+
+
+<p style="
+font-size:19px;
+margin-top:15px;
+color:#cbd5e1;
+line-height:1.6;
+">
+A comparative forecasting system using ARIMA, SARIMA, Prophet,
+and Random Forest models for accurate sales demand prediction.
+</p>
+
+
+<div style="
+margin-top:25px;
+height:3px;
+width:120px;
+background:#38bdf8;
+border-radius:10px;
+">
+</div>
+
+
+</div>
+""",
+unsafe_allow_html=True
 )
-
-
-st.write(
-    "A comparative forecasting system using ARIMA, SARIMA, Prophet, and Random Forest models."
-)
-
 
 
 st.divider()
-
 
 
 # ==========================================
